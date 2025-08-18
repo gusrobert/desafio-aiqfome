@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { FavoritesModule } from './favorites/favorites.module';
 import { ClientsModule } from './clients/clients.module';
-import { ProductsService } from './products/products.service';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -32,8 +30,7 @@ import { CacheModule } from '@nestjs/cache-manager';
     }),
     FavoritesModule,
     ClientsModule,
+    ProductsModule,
   ],
-  controllers: [AppController],
-  providers: [AppService, ProductsService],
 })
 export class AppModule {}

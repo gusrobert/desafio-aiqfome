@@ -49,15 +49,17 @@ export class ClientsService {
       throw new NotFoundException('Cliente não encontrado');
     }
 
-    return this.clientsRepository.update(id, updateClientDto);
+    await this.clientsRepository.update(id, updateClientDto);
+
+    return this.clientsRepository.findOneBy({ id });
   }
 
-  async remove(id: number) {
+  async remove(id: number): Promise<void> {
     const client = await this.clientsRepository.findOneBy({ id });
     if (!client) {
       throw new NotFoundException('Cliente não encontrado');
     }
 
-    return this.clientsRepository.delete(id);
+    await this.clientsRepository.remove(client);
   }
 }

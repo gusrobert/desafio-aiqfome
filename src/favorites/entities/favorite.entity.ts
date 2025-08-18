@@ -4,23 +4,22 @@ import {
   CreateDateColumn,
   Entity,
   ForeignKey,
-  PrimaryColumn,
   PrimaryGeneratedColumn,
+  Unique,
   UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('favorites')
+@Unique(['clientId', 'productId'])
 export class Favorite {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
-  @PrimaryColumn()
   @ForeignKey(() => Client)
   clientId: number;
 
   @Column()
-  @PrimaryColumn()
   productId: number;
 
   @Column({ nullable: false })
