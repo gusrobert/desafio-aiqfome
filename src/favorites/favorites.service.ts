@@ -46,8 +46,14 @@ export class FavoritesService {
     return this.favoritesRepository.update(id, updateFavoriteDto);
   }
 
-  remove(id: number) {
-    return this.favoritesRepository.delete(id);
+  async remove(id: number): Promise<void> {
+    const favorite = await this.favoritesRepository.findOneBy({ id });
+
+    if (!favorite) {
+      throw new NotFoundException('Favorito não encontrado');
+    }
+
+    await this.favoritesRepository.delete(id);
   }
 
   async getFavoritesByClient(clientId: number) {
