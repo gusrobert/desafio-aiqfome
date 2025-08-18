@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { FavoritesService } from './favorites.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
@@ -18,7 +19,10 @@ export class FavoritesController {
   constructor(private readonly favoritesService: FavoritesService) {}
 
   @ApiOperation({ summary: 'Cria um novo favorito' })
-  @ApiResponse({ status: 201, description: 'Favorito criado com sucesso.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Favorito criado com sucesso.',
+  })
   @Post()
   create(@Body() createFavoriteDto: CreateFavoriteDto) {
     return this.favoritesService.create(createFavoriteDto);
@@ -26,7 +30,7 @@ export class FavoritesController {
 
   @ApiOperation({ summary: 'Lista todos os favoritos' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Lista de favoritos retornada com sucesso.',
   })
   @Get()
@@ -39,7 +43,7 @@ export class FavoritesController {
     parameters: [{ name: 'id', in: 'path', required: true }],
   })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Favorito encontrado com sucesso.',
   })
   @Get(':id')
@@ -49,7 +53,7 @@ export class FavoritesController {
 
   @ApiOperation({ summary: 'Atualiza um favorito' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Favorito atualizado com sucesso.',
   })
   @Patch(':id')
@@ -62,18 +66,18 @@ export class FavoritesController {
 
   @ApiOperation({ summary: 'Remove um favorito' })
   @ApiResponse({
-    status: 204,
+    status: HttpStatus.NO_CONTENT,
     description: 'Favorito removido com sucesso.',
   })
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.favoritesService.remove(+id);
   }
 
   @ApiOperation({ summary: 'Lista favoritos de um cliente específico' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Lista de favoritos do cliente retornada com sucesso.',
   })
   @Get('client/:clientId')

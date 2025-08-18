@@ -6,7 +6,12 @@ import { CreateClientDto } from './dto/create-client.dto';
 describe('ClientsController', () => {
   let controller: ClientsController;
 
-  const mockClient = { id: 1, name: 'João', email: 'joao@exemplo.com' };
+  const mockClient = {
+    id: 1,
+    name: 'João',
+    email: 'joao@exemplo.com',
+    password: 'senha123',
+  };
 
   const mockClientsService = {
     create: jest.fn().mockResolvedValue(mockClient),
@@ -39,6 +44,7 @@ describe('ClientsController', () => {
       const dto: CreateClientDto = {
         name: 'João',
         email: 'joao@exemplo.com',
+        password: 'senha123',
       };
       expect(await controller.create(dto)).toEqual(mockClient);
       expect(mockClientsService.create).toHaveBeenCalledWith(dto);
@@ -64,6 +70,7 @@ describe('ClientsController', () => {
       const dto: CreateClientDto = {
         name: 'João',
         email: 'joao@exemplo.com',
+        password: 'senha123',
       };
 
       mockClientsService.update.mockResolvedValue(mockClient);

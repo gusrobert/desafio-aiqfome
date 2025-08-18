@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   HttpCode,
+  HttpStatus,
 } from '@nestjs/common';
 import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
@@ -18,7 +19,10 @@ export class ClientsController {
   constructor(private readonly clientsService: ClientsService) {}
 
   @ApiOperation({ summary: 'Cria um novo cliente' })
-  @ApiResponse({ status: 201, description: 'Cliente criado com sucesso.' })
+  @ApiResponse({
+    status: HttpStatus.CREATED,
+    description: 'Cliente criado com sucesso.',
+  })
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientsService.create(createClientDto);
@@ -26,7 +30,7 @@ export class ClientsController {
 
   @ApiOperation({ summary: 'Busca todos os clientes' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Lista de clientes retornada com sucesso.',
   })
   @Get()
@@ -36,7 +40,7 @@ export class ClientsController {
 
   @ApiOperation({ summary: 'Busca um cliente pelo ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Cliente encontrado com sucesso.',
   })
   @Get(':id')
@@ -46,7 +50,7 @@ export class ClientsController {
 
   @ApiOperation({ summary: 'Atualiza um cliente pelo ID' })
   @ApiResponse({
-    status: 200,
+    status: HttpStatus.OK,
     description: 'Cliente atualizado com sucesso.',
   })
   @Patch(':id')
@@ -56,11 +60,11 @@ export class ClientsController {
 
   @ApiOperation({ summary: 'Remove um cliente pelo ID' })
   @ApiResponse({
-    status: 204,
+    status: HttpStatus.NO_CONTENT,
     description: 'Cliente removido com sucesso.',
   })
   @Delete(':id')
-  @HttpCode(204)
+  @HttpCode(HttpStatus.NO_CONTENT)
   remove(@Param('id') id: string) {
     return this.clientsService.remove(+id);
   }

@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from './entities/client.entity';
 import { Repository } from 'typeorm';
 import { UsersService } from 'src/users/users.service';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class ClientsService {
@@ -19,8 +20,9 @@ export class ClientsService {
   ) {}
 
   async create(createClientDto: CreateClientDto) {
+    let user: User;
     try {
-      await this.usersService.create(createClientDto);
+      user = await this.usersService.create(createClientDto);
     } catch (error) {
       if (error instanceof ConflictException) {
         throw new ConflictException('E-mail já cadastrado.');
@@ -30,7 +32,7 @@ export class ClientsService {
 
     const client = this.clientsRepository.create({
       ...createClientDto,
-      userId: (await this.usersService.create(createClientDto)).id,
+      userId: user.id,
     });
     return this.clientsRepository.save(client);
   }
