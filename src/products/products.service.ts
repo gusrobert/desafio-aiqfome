@@ -4,11 +4,7 @@ import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { Cache } from 'cache-manager';
 import { firstValueFrom } from 'rxjs';
-
-interface Product {
-  id: number;
-  [key: string]: any;
-}
+import { ProductDto } from './dto/product.dto';
 
 @Injectable()
 export class ProductsService implements OnModuleInit {
@@ -45,7 +41,7 @@ export class ProductsService implements OnModuleInit {
       const response = await firstValueFrom(
         this.httpService.get(`${this.baseUrl}/products`),
       );
-      const data = response.data as Product[];
+      const data = response.data as ProductDto[];
 
       await this.cacheManager.set('products', data, 3600);
 
@@ -57,8 +53,9 @@ export class ProductsService implements OnModuleInit {
     }
   }
 
-  async getAllProducts(): Promise<Product[]> {
-    const cachedProducts = await this.cacheManager.get<Product[]>('products');
+  async getAllProducts(): Promise<ProductDto[]> {
+    const cachedProducts =
+      await this.cacheManager.get<ProductDto[]>('products');
     if (cachedProducts) {
       return cachedProducts;
     }
@@ -67,7 +64,7 @@ export class ProductsService implements OnModuleInit {
       const response = await firstValueFrom(
         this.httpService.get(`${this.baseUrl}/products`),
       );
-      const data = response.data as Product[];
+      const data = response.data as ProductDto[];
 
       await this.cacheManager.set('products', data, 3600);
       return data;
@@ -77,8 +74,10 @@ export class ProductsService implements OnModuleInit {
     }
   }
 
-  async getProductById(id: number): Promise<Product> {
-    const cachedProduct = await this.cacheManager.get<Product>(`product_${id}`);
+  async getProductById(id: number): Promise<ProductDto> {
+    const cachedProduct = await this.cacheManager.get<ProductDto>(
+      `product_${id}`,
+    );
     if (cachedProduct) {
       return cachedProduct;
     }
@@ -87,7 +86,7 @@ export class ProductsService implements OnModuleInit {
       const response = await firstValueFrom(
         this.httpService.get(`${this.baseUrl}/products/${id}`),
       );
-      const data = response.data as Product;
+      const data = response.data as ProductDto;
 
       await this.cacheManager.set(`product_${id}`, data, 3600);
       return data;

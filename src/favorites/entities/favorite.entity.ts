@@ -1,10 +1,12 @@
 import { Client } from 'src/clients/entities/client.entity';
 import {
   Column,
+  CreateDateColumn,
   Entity,
   ForeignKey,
   PrimaryColumn,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 @Entity('favorites')
@@ -21,9 +23,11 @@ export class Favorite {
   @PrimaryColumn()
   productId: number;
 
-  @Column()
+  @Column({ nullable: false })
+  @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @Column({ nullable: false })
+  @UpdateDateColumn()
   updatedAt: Date;
 }

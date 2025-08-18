@@ -22,13 +22,11 @@ export class Client {
   })
   email: string;
 
-  @Column({
-    nullable: false,
-  })
+  @Column({ nullable: false })
   @CreateDateColumn()
   createdAt: Date;
 
-  @Column()
+  @Column({ nullable: false })
   @UpdateDateColumn()
   updatedAt: Date;
 }
