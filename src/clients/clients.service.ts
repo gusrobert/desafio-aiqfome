@@ -17,11 +17,11 @@ export class ClientsService {
   ) {}
 
   async create(createClientDto: CreateClientDto) {
-    const existingClient = await this.clientsRepository.findOne({
+    const existingEmail = await this.clientsRepository.findOne({
       where: { email: createClientDto.email },
     });
 
-    if (existingClient) {
+    if (existingEmail) {
       throw new ConflictException('E-mail já cadastrado.');
     }
 

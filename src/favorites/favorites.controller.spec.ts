@@ -5,7 +5,6 @@ import { CreateFavoriteDto } from './dto/create-favorite.dto';
 
 describe('FavoritesController', () => {
   let controller: FavoritesController;
-  let service: FavoritesService;
 
   const mockFavorite = {
     id: 1,
@@ -46,9 +45,7 @@ describe('FavoritesController', () => {
     }).compile();
 
     controller = module.get<FavoritesController>(FavoritesController);
-    service = module.get<FavoritesService>(FavoritesService);
   });
-
   it('deve estar definido', () => {
     expect(controller).toBeDefined();
   });
@@ -59,27 +56,22 @@ describe('FavoritesController', () => {
         clientId: 1,
         productId: 2,
       };
-      const createSpy = jest
-        .spyOn(service, 'create')
-        .mockResolvedValue(mockFavorite);
       expect(await controller.create(dto)).toEqual(mockFavorite);
-      expect(createSpy).toHaveBeenCalledWith(dto);
+      expect(mockFavoritesService.create).toHaveBeenCalledWith(dto);
     });
   });
 
   describe('findAll', () => {
     it('deve retornar todos os favoritos', async () => {
-      const result = [mockFavorite];
-      jest.spyOn(service, 'findAll').mockResolvedValue(result);
-      expect(await controller.findAll()).toEqual(result);
+      expect(await controller.findAll()).toEqual([mockFavorite]);
+      expect(mockFavoritesService.findAll).toHaveBeenCalled();
     });
   });
 
   describe('findOne', () => {
     it('deve retornar um favorito', async () => {
-      const result = mockFavorite;
-      jest.spyOn(service, 'findOne').mockResolvedValue(result);
-      expect(await controller.findOne('1')).toEqual(result);
+      expect(await controller.findOne('1')).toEqual(mockFavorite);
+      expect(mockFavoritesService.findOne).toHaveBeenCalledWith(1);
     });
   });
 
@@ -89,30 +81,30 @@ describe('FavoritesController', () => {
         clientId: 1,
         productId: 2,
       };
-      const updateSpy = jest
-        .spyOn(service, 'update')
-        .mockResolvedValue(mockFavorite);
+      mockFavoritesService.update.mockResolvedValue(mockFavorite);
+
       expect(await controller.update('1', dto)).toEqual(mockFavorite);
-      expect(updateSpy).toHaveBeenCalledWith(1, dto);
+      expect(mockFavoritesService.update).toHaveBeenCalledWith(1, dto);
     });
   });
 
   describe('remove', () => {
     it('deve remover um favorito', async () => {
-      const removeSpy = jest
-        .spyOn(service, 'remove')
-        .mockResolvedValue(undefined);
+      mockFavoritesService.remove.mockResolvedValue(undefined);
       expect(await controller.remove('1')).toEqual(undefined);
-      expect(removeSpy).toHaveBeenCalledWith(1);
+      expect(mockFavoritesService.remove).toHaveBeenCalledWith(1);
     });
   });
 
   describe('getFavoritesByClientId', () => {
     it('deve retornar os favoritos de um cliente', async () => {
-      jest
-        .spyOn(service, 'getFavoritesByClientId')
-        .mockResolvedValue(mockProduct);
+      mockFavoritesService.getFavoritesByClientId.mockResolvedValue(
+        mockProduct,
+      );
       expect(await controller.getFavoritesByClientId('1')).toEqual(mockProduct);
+      expect(mockFavoritesService.getFavoritesByClientId).toHaveBeenCalledWith(
+        1,
+      );
     });
   });
 });
