@@ -41,11 +41,19 @@ export class ProductsService implements OnModuleInit {
       const response = await firstValueFrom(
         this.httpService.get(`${this.baseUrl}/products`),
       );
+
+      const now = new Date();
       const data = response.data as ProductDto[];
 
-      await this.cacheManager.set('products', data, 3600);
+      const productsWithTimestamp = data.map((product) => ({
+        ...product,
+        createdAt: now,
+        updatedAt: now,
+      }));
 
-      for (const product of data) {
+      await this.cacheManager.set('products', productsWithTimestamp, 3600);
+
+      for (const product of productsWithTimestamp) {
         await this.cacheManager.set(`product_${product.id}`, product, 3600);
       }
     } catch (error) {

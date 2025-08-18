@@ -16,22 +16,25 @@ describe('FavoritesService', () => {
   };
 
   const mockProduct = {
-    id: 1,
-    title: 'Product 1',
-    price: 100,
-    description: 'Description 1',
     category: 'Category 1',
-    image: 'image1.jpg',
     createdAt: new Date(),
+    description: 'Description 1',
+    id: 1,
+    image: 'image1.jpg',
+    price: 100,
+    title: 'Product 1',
     updatedAt: new Date(),
   };
 
   const mockRepo = {
     create: jest.fn().mockReturnValue(mockFavorite),
     findOne: jest.fn().mockResolvedValue(mockFavorite),
+    findOneBy: jest.fn().mockResolvedValue(mockFavorite),
     find: jest.fn().mockResolvedValue([mockFavorite]),
     save: jest.fn().mockResolvedValue(mockFavorite),
     remove: jest.fn().mockResolvedValue(mockFavorite),
+    update: jest.fn().mockResolvedValue(mockFavorite),
+    delete: jest.fn().mockResolvedValue({ affected: 1 }),
   };
 
   beforeEach(async () => {
@@ -44,7 +47,9 @@ describe('FavoritesService', () => {
         },
         {
           provide: ProductsService,
-          useValue: { mockProduct },
+          useValue: {
+            getProductById: jest.fn().mockResolvedValue(mockProduct),
+          },
         },
       ],
     }).compile();
@@ -53,36 +58,109 @@ describe('FavoritesService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('deve estar definido', () => {
     expect(service).toBeDefined();
   });
 
   describe('create', () => {
     it('deve criar um novo favorito', async () => {
-      mockRepo.findOne.mockResolvedValue(null); // Simula que o favorito não existe
+      mockRepo.findOneBy.mockResolvedValue(null); // Simula que o favorito não existe
       mockRepo.save.mockResolvedValue(mockRepo.create());
 
       const dto = { clientId: 1, productId: 1 };
 
       expect(await service.create(dto)).toEqual(mockFavorite);
-      expect(mockRepo.findOne).toHaveBeenCalledWith({
-        where: { clientId: dto.clientId, productId: dto.productId },
+      expect(mockRepo.findOneBy).toHaveBeenCalledWith({
+        clientId: dto.clientId,
+        productId: dto.productId,
       });
       expect(mockRepo.create).toHaveBeenCalledWith(dto);
       expect(mockRepo.save).toHaveBeenCalledWith(mockFavorite);
     });
 
     it('deve lançar uma exceção se o favorito já existir', async () => {
-      mockRepo.findOne.mockResolvedValue(mockRepo.create());
+      mockRepo.findOneBy.mockResolvedValue(mockRepo.create());
 
       const dto = { clientId: 1, productId: 2 };
 
       await expect(service.create(dto)).rejects.toThrow(
         new Error('Favorito já cadastrado.'),
       );
-      expect(mockRepo.findOne).toHaveBeenCalledWith({
-        where: { clientId: dto.clientId, productId: dto.productId },
+      expect(mockRepo.findOneBy).toHaveBeenCalledWith({
+        clientId: dto.clientId,
+        productId: dto.productId,
       });
+    });
+  });
+
+  describe('findAll', () => {
+    it('deve retornar todos os favoritos do usuário', async () => {
+      expect(await service.findAll()).toEqual([mockFavorite]);
+      expect(mockRepo.find).toHaveBeenCalledWith();
+    });
+  });
+
+  describe('findOne', () => {
+    it('deve retornar um favorito específico', async () => {
+      expect(await service.findOne(1)).toEqual(mockFavorite);
+      expect(mockRepo.findOneBy).toHaveBeenCalledWith({ id: 1 });
+    });
+
+    it('deve lançar uma exceção se o favorito não for encontrado', async () => {
+      mockRepo.findOneBy.mockResolvedValue(null);
+      await expect(service.findOne(1)).rejects.toThrow(
+        new Error('Favorito não encontrado.'),
+      );
+    });
+  });
+
+  describe('update', () => {
+    it('deve atualizar um favorito existente', async () => {
+      mockRepo.findOneBy.mockResolvedValue(mockFavorite);
+      const dto = { clientId: 1, productId: 2 };
+
+      expect(await service.update(1, dto)).toEqual(mockFavorite);
+      expect(mockRepo.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(mockRepo.update).toHaveBeenCalledWith(1, dto);
+    });
+
+    it('deve lançar uma exceção se o favorito não for encontrado', async () => {
+      mockRepo.findOneBy.mockResolvedValue(null);
+      await expect(service.update(1, {})).rejects.toThrow(
+        new Error('Favorito não encontrado'),
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('deve remover um favorito existente', async () => {
+      mockRepo.findOneBy.mockResolvedValue(mockFavorite);
+      await service.remove(1);
+      expect(mockRepo.findOneBy).toHaveBeenCalledWith({ id: 1 });
+      expect(mockRepo.delete).toHaveBeenCalledWith(1);
+    });
+
+    it('deve lançar uma exceção se o favorito não for encontrado', async () => {
+      mockRepo.findOneBy.mockResolvedValue(null);
+      await expect(service.remove(1)).rejects.toThrow(
+        new Error('Favorito não encontrado'),
+      );
+    });
+  });
+
+  describe('getFavoritesByClientId', () => {
+    it('deve retornar os favoritos de um cliente específico', async () => {
+      mockRepo.find.mockResolvedValue([mockFavorite]);
+      const result = await service.getFavoritesByClientId(1);
+      expect(result).toEqual([mockProduct]);
+      expect(mockRepo.find).toHaveBeenCalledWith({ where: { clientId: 1 } });
+    });
+
+    it('deve lançar uma exceção se nenhum favorito for encontrado', async () => {
+      mockRepo.find.mockResolvedValue([]);
+      await expect(service.getFavoritesByClientId(1)).rejects.toThrow(
+        new Error('Nenhum favorito encontrado para este cliente.'),
+      );
     });
   });
 });

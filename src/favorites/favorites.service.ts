@@ -19,11 +19,9 @@ export class FavoritesService {
   ) {}
 
   async create(createFavoriteDto: CreateFavoriteDto) {
-    const existingFavorite = await this.favoritesRepository.findOne({
-      where: {
-        clientId: createFavoriteDto.clientId,
-        productId: createFavoriteDto.productId,
-      },
+    const existingFavorite = await this.favoritesRepository.findOneBy({
+      clientId: createFavoriteDto.clientId,
+      productId: createFavoriteDto.productId,
     });
 
     if (existingFavorite) {
@@ -38,8 +36,14 @@ export class FavoritesService {
     return this.favoritesRepository.find();
   }
 
-  findOne(id: number) {
-    return this.favoritesRepository.findOne({ where: { id } });
+  async findOne(id: number) {
+    const favorite = await this.favoritesRepository.findOneBy({ id });
+
+    if (!favorite) {
+      throw new NotFoundException('Favorito não encontrado.');
+    }
+
+    return favorite;
   }
 
   async update(id: number, updateFavoriteDto: UpdateFavoriteDto) {
@@ -70,9 +74,9 @@ export class FavoritesService {
     });
 
     if (!favorites.length) {
-      throw new NotFoundException(`
-        Nenhum favorito encontrado para este cliente.
-      `);
+      throw new NotFoundException(
+        `Nenhum favorito encontrado para este cliente.`,
+      );
     }
 
     const products = await Promise.all(
@@ -80,13 +84,7 @@ export class FavoritesService {
         const product = await this.productsService.getProductById(
           favorite.productId,
         );
-        return {
-          id: product.id,
-          title: product.title,
-          price: product.price,
-          description: product.description,
-          image: product.image,
-        };
+        return product;
       }),
     );
 
