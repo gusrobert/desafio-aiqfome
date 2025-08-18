@@ -8,24 +8,30 @@ import { UpdateClientDto } from './dto/update-client.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Client } from './entities/client.entity';
 import { Repository } from 'typeorm';
+import { UsersService } from 'src/users/users.service';
 
 @Injectable()
 export class ClientsService {
   constructor(
     @InjectRepository(Client)
     private clientsRepository: Repository<Client>,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createClientDto: CreateClientDto) {
-    const existingEmail = await this.clientsRepository.findOne({
-      where: { email: createClientDto.email },
-    });
-
-    if (existingEmail) {
-      throw new ConflictException('E-mail já cadastrado.');
+    try {
+      await this.usersService.create(createClientDto);
+    } catch (error) {
+      if (error instanceof ConflictException) {
+        throw new ConflictException('E-mail já cadastrado.');
+      }
+      throw error;
     }
 
-    const client = this.clientsRepository.create(createClientDto);
+    const client = this.clientsRepository.create({
+      ...createClientDto,
+      userId: (await this.usersService.create(createClientDto)).id,
+    });
     return this.clientsRepository.save(client);
   }
 

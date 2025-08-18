@@ -6,6 +6,8 @@ import { ClientsModule } from './clients/clients.module';
 import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ProductsModule } from './products/products.module';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -31,6 +33,8 @@ import { ProductsModule } from './products/products.module';
     FavoritesModule,
     ClientsModule,
     ProductsModule,
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}

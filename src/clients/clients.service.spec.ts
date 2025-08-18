@@ -2,11 +2,24 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ClientsService } from './clients.service';
 import { Client } from './entities/client.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { UsersService } from 'src/users/users.service';
+import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('ClientsService', () => {
   let service: ClientsService;
+  let usersService: UsersService;
 
-  const mockClient = { id: 1, name: 'João', email: 'joao@exemplo.com' };
+  const mockClient = {
+    id: 1,
+    name: 'João',
+  };
+
+  const mockUser = {
+    id: 1,
+    email: 'joao@exemplo.com',
+    password: 'senha123',
+    name: 'João',
+  };
 
   const mockRepo = {
     create: jest.fn().mockReturnValue(mockClient),
@@ -26,10 +39,18 @@ describe('ClientsService', () => {
           provide: getRepositoryToken(Client),
           useValue: mockRepo,
         },
+        {
+          provide: UsersService,
+          useValue: {
+            create: jest.fn(),
+          },
+        },
       ],
     }).compile();
 
     service = module.get<ClientsService>(ClientsService);
+    usersService = module.get<UsersService>(UsersService);
+
     jest.clearAllMocks();
   });
 
@@ -38,31 +59,36 @@ describe('ClientsService', () => {
   });
 
   describe('create', () => {
-    it('deve criar um novo cliente', async () => {
-      mockRepo.findOne.mockResolvedValue(null); // Simula que o cliente não existe
-      mockRepo.create.mockReturnValue(mockClient);
-      mockRepo.save.mockResolvedValue(mockClient);
+    describe('quando o e-mail não existe', () => {
+      it('deve criar um novo cliente', async () => {
+        (usersService.create as jest.Mock).mockResolvedValue(mockUser);
 
-      const dto = { name: 'João', email: 'joao@exemplo.com' };
+        const dto = {
+          name: 'João',
+          email: 'joao@exemplo.com',
+          password: 'senha123',
+        };
 
-      expect(await service.create(dto)).toEqual(mockClient);
-      expect(mockRepo.findOne).toHaveBeenCalledWith({
-        where: { email: dto.email },
+        expect(await service.create(dto)).toEqual(mockClient);
+        expect(mockRepo.create).toHaveBeenCalledWith({
+          ...dto,
+          userId: mockUser.id,
+        });
       });
-      expect(mockRepo.create).toHaveBeenCalledWith(dto);
-      expect(mockRepo.save).toHaveBeenCalledWith(mockClient);
     });
 
-    it('deve lançar uma exceção se o cliente já existir', async () => {
-      mockRepo.findOne.mockResolvedValue(mockClient); // já existe
+    describe('quando o e-mail já existe', () => {
+      it('deve lançar uma exceção se o cliente já existir', async () => {
+        const conflictError = new ConflictException('E-mail já cadastrado.');
+        (usersService.create as jest.Mock).mockRejectedValue(conflictError);
 
-      const dto = { name: 'João', email: 'joao@exemplo.com' };
+        const dto = {
+          name: 'João',
+          email: 'joao@exemplo.com',
+          password: 'senha123',
+        };
 
-      await expect(service.create(dto)).rejects.toThrow(
-        new Error('E-mail já cadastrado.'),
-      );
-      expect(mockRepo.findOne).toHaveBeenCalledWith({
-        where: { email: dto.email },
+        await expect(service.create(dto)).rejects.toThrow(conflictError);
       });
     });
   });
@@ -83,9 +109,7 @@ describe('ClientsService', () => {
     it('deve lançar uma exceção se o cliente não for encontrado', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
 
-      await expect(service.findOne(1)).rejects.toThrow(
-        new Error('Cliente não encontrado'),
-      );
+      await expect(service.findOne(1)).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -104,9 +128,7 @@ describe('ClientsService', () => {
     it('deve lançar uma exceção se o cliente não for encontrado', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
 
-      await expect(service.update(1, {})).rejects.toThrow(
-        new Error('Cliente não encontrado'),
-      );
+      await expect(service.update(1, {})).rejects.toThrow(NotFoundException);
     });
   });
 
@@ -122,9 +144,7 @@ describe('ClientsService', () => {
     it('deve lançar uma exceção se o cliente não for encontrado', async () => {
       mockRepo.findOneBy.mockResolvedValue(null);
 
-      await expect(service.remove(1)).rejects.toThrow(
-        new Error('Cliente não encontrado'),
-      );
+      await expect(service.remove(1)).rejects.toThrow(NotFoundException);
     });
   });
 });

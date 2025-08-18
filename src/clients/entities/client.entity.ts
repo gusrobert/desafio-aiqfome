@@ -1,7 +1,9 @@
+import { User } from 'src/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  ForeignKey,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -16,11 +18,9 @@ export class Client {
   })
   name: string;
 
-  @Column({
-    nullable: false,
-    unique: true,
-  })
-  email: string;
+  @Column({ nullable: false })
+  @ForeignKey(() => User)
+  userId: number;
 
   @Column({ nullable: false })
   @CreateDateColumn()
