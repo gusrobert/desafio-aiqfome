@@ -1,4 +1,3 @@
-/* eslint-disable */
 export default async () => {
   const t = {
     ['./favorites/entities/favorite.entity']: await import(

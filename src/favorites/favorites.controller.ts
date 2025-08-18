@@ -77,7 +77,7 @@ export class FavoritesController {
     description: 'Lista de favoritos do cliente retornada com sucesso.',
   })
   @Get('client/:clientId')
-  getFavoritesByClient(@Param('clientId') clientId: string) {
-    return this.favoritesService.getFavoritesByClient(+clientId);
+  getFavoritesByClientId(@Param('clientId') clientId: string) {
+    return this.favoritesService.getFavoritesByClientId(+clientId);
   }
 }

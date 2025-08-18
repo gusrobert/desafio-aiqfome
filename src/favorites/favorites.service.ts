@@ -42,8 +42,16 @@ export class FavoritesService {
     return this.favoritesRepository.findOne({ where: { id } });
   }
 
-  update(id: number, updateFavoriteDto: UpdateFavoriteDto) {
-    return this.favoritesRepository.update(id, updateFavoriteDto);
+  async update(id: number, updateFavoriteDto: UpdateFavoriteDto) {
+    const favorite = await this.favoritesRepository.findOneBy({ id });
+
+    if (!favorite) {
+      throw new NotFoundException('Favorito não encontrado');
+    }
+
+    await this.favoritesRepository.update(id, updateFavoriteDto);
+
+    return this.favoritesRepository.findOneBy({ id });
   }
 
   async remove(id: number): Promise<void> {
@@ -56,7 +64,7 @@ export class FavoritesService {
     await this.favoritesRepository.delete(id);
   }
 
-  async getFavoritesByClient(clientId: number) {
+  async getFavoritesByClientId(clientId: number) {
     const favorites = await this.favoritesRepository.find({
       where: { clientId },
     });
