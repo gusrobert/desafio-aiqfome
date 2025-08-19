@@ -79,12 +79,6 @@ Exemplo:
 docker compose up --build
 ```
 
-Para rodar migrations dentro do container:
-
-```bash
-docker compose exec backend npm run typeorm -- migration:run -d src/data-source.ts
-```
-
 ## Documentação Swagger
 
 Após iniciar a API, a documentação interativa fica em:
