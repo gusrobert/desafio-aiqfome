@@ -13,6 +13,7 @@ import { FavoritesService } from './favorites.service';
 import { CreateFavoriteDto } from './dto/create-favorite.dto';
 import { UpdateFavoriteDto } from './dto/update-favorite.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Roles } from 'src/roles/roles.decorator';
 
 @Controller('favorites')
 export class FavoritesController {
@@ -23,6 +24,8 @@ export class FavoritesController {
     status: HttpStatus.CREATED,
     description: 'Favorito criado com sucesso.',
   })
+  @HttpCode(HttpStatus.CREATED)
+  @Roles('admin')
   @Post()
   create(@Body() createFavoriteDto: CreateFavoriteDto) {
     return this.favoritesService.create(createFavoriteDto);

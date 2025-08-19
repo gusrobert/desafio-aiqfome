@@ -35,6 +35,7 @@ export class ClientsController {
     status: HttpStatus.OK,
     description: 'Lista de clientes retornada com sucesso.',
   })
+  @Roles('admin')
   @Get()
   findAll() {
     return this.clientsService.findAll();
@@ -45,6 +46,7 @@ export class ClientsController {
     status: HttpStatus.OK,
     description: 'Cliente encontrado com sucesso.',
   })
+  @Roles('admin', 'client')
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.clientsService.findOne(+id);
