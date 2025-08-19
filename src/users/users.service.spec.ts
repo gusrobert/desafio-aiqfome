@@ -39,7 +39,7 @@ describe('UsersService', () => {
     jest.clearAllMocks();
   });
 
-  it('should be defined', () => {
+  it('deve estar definido', () => {
     expect(service).toBeDefined();
   });
 

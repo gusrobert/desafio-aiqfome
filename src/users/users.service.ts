@@ -44,8 +44,6 @@ export class UsersService {
       relations: { roles: { role: true } },
     });
 
-    console.log(user);
-
     return user;
   }
 }

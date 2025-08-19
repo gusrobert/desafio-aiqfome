@@ -37,25 +37,19 @@ export class AuthGuard implements CanActivate {
     ]);
 
     if (isPublic) {
-      console.log('AuthGuard: rota pública, liberando acesso.');
       return true;
     }
 
-    console.log('AuthGuard: Checking user authentication...');
     const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const authHeader = request.headers.authorization;
-    console.log('Authorization header:', authHeader);
 
     if (!authHeader) {
-      console.log('AuthGuard: Authorization header ausente.');
       throw new UnauthorizedException();
     }
 
     const token = authHeader.split(' ')[1];
-    console.log('Token extraído:', token);
 
     if (!token) {
-      console.log('AuthGuard: Token ausente no header.');
       throw new UnauthorizedException();
     }
     try {
@@ -63,11 +57,8 @@ export class AuthGuard implements CanActivate {
         secret: process.env.JWT_SECRET,
       });
 
-      console.log('Payload decodificado:', payload);
-
       const user = await this.usersService.findOneByIdWithRoles(payload.sub);
       if (!user) {
-        console.log('AuthGuard: Usuário não encontrado.');
         throw new UnauthorizedException();
       }
 
@@ -76,13 +67,8 @@ export class AuthGuard implements CanActivate {
         ...user,
         roles: user.roles?.map((ur) => ur.role?.name).filter(Boolean) || [],
       };
-      console.log(
-        'AuthGuard: Usuário autenticado com roles:',
-        request.user.roles,
-      );
     } catch (err) {
-      console.log('AuthGuard: Erro ao autenticar:', err);
-      throw new UnauthorizedException();
+      throw new UnauthorizedException(err);
     }
     return true;
   }
