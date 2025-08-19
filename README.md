@@ -46,7 +46,6 @@ As migrations são controladas pelo TypeORM. Para rodar migrations localmente us
 Executar migrations pendentes:
 
 ```bash
-# usando typeorm-ts-node-esm (script `typeorm` no package.json)
 npm run typeorm -- migration:run -d src/data-source.ts
 # ou
 npx typeorm migration:run -d src/data-source.ts
@@ -57,10 +56,6 @@ Reverter última migration:
 ```bash
 npx typeorm migration:revert -d src/data-source.ts
 ```
-
-## Seeders / dados iniciais
-
-Recomenda-se criar seeders como migrations (ex.: migrations que inserem dados iniciais). Para aplicar seedings, crie migrations específicas que inserem registros iniciais (roles, admin user, etc).
 
 ## Executando localmente
 
@@ -130,5 +125,3 @@ npm run test:cov
 - build — transpila TS para JS
 - start:prod — inicia a aplicação a partir do build
 - typeorm — atalho para `typeorm-ts-node-esm` (use com `npm run typeorm -- <command> -d src/data-source.ts`)
-
-## Licença
