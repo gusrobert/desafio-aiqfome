@@ -1,6 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
+import { UserRole } from './user-roles.entity';
 
-@Entity()
+@Entity('users')
 @Unique(['email'])
 export class User {
   @PrimaryGeneratedColumn()
@@ -11,4 +20,15 @@ export class User {
 
   @Column({ nullable: false })
   password: string;
+
+  @Column({ nullable: false })
+  @CreateDateColumn()
+  createdAt: Date;
+
+  @Column({ nullable: false })
+  @UpdateDateColumn()
+  updatedAt: Date;
+
+  @OneToMany(() => UserRole, (userRole) => userRole.user, { cascade: true })
+  roles: UserRole[];
 }

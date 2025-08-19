@@ -13,6 +13,7 @@ import { ClientsService } from './clients.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Roles } from 'src/roles/roles.decorator';
 
 @Controller('clients')
 export class ClientsController {
@@ -23,6 +24,7 @@ export class ClientsController {
     status: HttpStatus.CREATED,
     description: 'Cliente criado com sucesso.',
   })
+  @Roles('admin')
   @Post()
   create(@Body() createClientDto: CreateClientDto) {
     return this.clientsService.create(createClientDto);

@@ -17,7 +17,10 @@ export class AuthService {
     if (!user || !(await bcrypt.compare(signInDto.password, user.password))) {
       throw new UnauthorizedException();
     }
-    const payload = { email: user.email, sub: user.id };
+
+    const rolesNames =
+      user.roles?.map((role) => role.role?.name).filter(Boolean) || [];
+    const payload = { email: user.email, sub: user.id, roles: rolesNames };
     return {
       access_token: this.jwtService.sign(payload),
     };
